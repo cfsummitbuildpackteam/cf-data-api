@@ -1,0 +1,14 @@
+{
+  "applicationId_1": {
+    "name": "appName_1",
+    "org": "orgName",
+    "space": "spaceName",
+    "buildpack": "buildpackName_1"
+  },
+  "applicationId_2": {
+    "name": "appName_2",
+    "org": "orgName",
+    "space": "spaceName",
+    "buildpack": "buildpackName_2"
+  }
+}
