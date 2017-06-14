@@ -58,7 +58,9 @@ public class BuildpackDataMapper {
                                 .filter(space -> space.getId().equals(entity.getSpaceId()))
                                 .findFirst().get()
                                 .getName());
-                        appStats.setBuildpack(entity.getBuildpack());
+                        String buildpack = entity.getBuildpack() != null ?
+                                entity.getBuildpack() : entity.getDetectedBuildpack();
+                        appStats.setBuildpack(buildpack);
                         appStatsList.add(appStats);
                     });
         });
