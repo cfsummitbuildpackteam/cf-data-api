@@ -6,8 +6,11 @@ import com.cfsummit.hackathon.model.Space;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
 import org.cloudfoundry.client.v2.applications.ListApplicationsRequest;
+import org.cloudfoundry.client.v2.organizations.ListOrganizationManagersRequest;
 import org.cloudfoundry.client.v2.organizations.ListOrganizationSpacesRequest;
+import org.cloudfoundry.client.v2.users.ListUsersRequest;
 import org.cloudfoundry.operations.CloudFoundryOperations;
+import org.cloudfoundry.operations.organizations.OrganizationInfoRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,17 @@ public class BuildpackDataMapper {
         //Get organizations
         cloudFoundryOperations.organizations().list().toStream()
                 .forEach(orgSummary -> {
-                    orgs.add(new Org(orgSummary.getId(), orgSummary.getName()));
+                    Org org = new Org();
+                    org.setId(orgSummary.getId());
+                    org.setName(orgSummary.getName());
+
+                    cloudFoundryClient.organizations().listManagers(
+                            ListOrganizationManagersRequest.builder().organizationId(orgSummary.getId()).build())
+                            .block()
+                            .getResources()
+                            .forEach(userResource -> org.addManager(userResource.getEntity().getUsername()));
+
+                    orgs.add(org);
 
                 });
 
@@ -61,6 +74,9 @@ public class BuildpackDataMapper {
                         String buildpack = entity.getBuildpack() != null ?
                                 entity.getBuildpack() : entity.getDetectedBuildpack();
                         appStats.setBuildpack(buildpack);
+
+                        org.getOrgManagers().forEach(manager -> appStats.addManager(manager));
+
                         appStatsList.add(appStats);
                     });
         });
